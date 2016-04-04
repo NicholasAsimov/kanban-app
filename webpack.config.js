@@ -2,25 +2,44 @@ const webpack = require('webpack');
 const path = require('path');
 const merge = require('webpack-merge');
 
+const NpmInstallPlugin = require('npm-install-webpack-plugin');
+
 const TARGET = process.env.npm_lifecycle_event;
 const PATHS = {
   app: path.join(__dirname, 'app'),
   build: path.join(__dirname, 'build')
 };
 
+process.env.BABEL_ENV = TARGET;
+
 const common = {
   entry: {
     app: PATHS.app
+  },
+  resolve: {
+    extensions: ['', '.js', '.jsx']
   },
   output: {
     path: PATHS.build,
     filename: 'bundle.js'
   },
   module: {
+    // preLoaders: [
+    //   {
+    //     test: /\.jsx?$/,
+    //     loaders: ['eslint-loader'],
+    //     include: PATHS.app
+    //   }
+    // ],
     loaders: [
       {
         test: /\.css$/,
         loaders: ['style', 'css'],
+        include: PATHS.app
+      },
+      {
+        test: /\.jsx?$/,
+        loaders: ['babel?cacheDirectory'],
         include: PATHS.app
       }
     ]
@@ -29,7 +48,8 @@ const common = {
 
 if (TARGET === 'start' || !TARGET) {
   module.exports = merge(common, {
-    devtool: 'eval-source-map',
+    // Source Maps doesn't work with Hot Reloading yet
+    // devtool: 'eval-source-map',
     devServer: {
       contentBase: PATHS.build,
 
@@ -55,7 +75,10 @@ if (TARGET === 'start' || !TARGET) {
       port: process.env.PORT || 3000
     },
     plugins: [
-      new webpack.HotModuleReplacementPlugin()
+      new webpack.HotModuleReplacementPlugin(),
+      new NpmInstallPlugin({
+          save: true // --save
+      })
     ]
   });
 }
