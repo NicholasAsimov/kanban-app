@@ -49,7 +49,7 @@ const common = {
 if (TARGET === 'start' || !TARGET) {
   module.exports = merge(common, {
     // Source Maps doesn't work with Hot Reloading yet
-    // devtool: 'eval-source-map',
+    devtool: 'eval-source-map',
     devServer: {
       contentBase: PATHS.build,
 
